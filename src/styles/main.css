@@ -24,10 +24,7 @@
   .aside .aside__logo img {
     width: 66px;
   }
-  .aside .aside__navigation ul {
 
-  
-  }
   .aside .aside__navigation li  {
     list-style: none;
     display: flex;
@@ -48,7 +45,9 @@
   /* *********************************** */
    /* start main   */
   /*****************************/
-  
+  .main-layout {
+    display: flex;
+  }
   /************ login page  ************/
   /* src/components/LoginPage.css */
 
