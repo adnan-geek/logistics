@@ -15,7 +15,8 @@ const Login = () => {
       // store the token in the local storage 
             if(response.data.success == true){
               setErrorMessage('');
-              navigate('/');
+              navigate('/main/analytics');
+              console.log(response);
             }
             else if(response.data.success ==  false){
             console.log(response);
@@ -50,27 +51,24 @@ const Login = () => {
     <div className='loginFormParent'>
       <div className='sign-in'>
         <div className='sign-in-content'>
-          <h1>welcome back</h1>
-          <p className='welcome-text'>Welcome back! Please enter your details</p>
+          <h1 className='text-center'>welcome back</h1>
+          <p className='welcome-text text-center'>Welcome back! Please enter your details</p>
 
           <form onSubmit={handleSubmit}>
-            <div className='email'>
+            <div className='email ele-center'>
               <label>username</label>
               <input type="text" placeholder="your username" name="username" value={formData.email} onChange={(event) => setFormData({ ...formData, username: event.target.value })} />
             </div>
-            <div className='pass'>
+            <div className='pass ele-center'>
               <label>password</label>
               <input type="password" placeholder="Password" name="password" value={formData.password} onChange={(event) => setFormData({ ...formData, password: event.target.value })} />
               {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
             </div>
-            <div className='remember-me'>
-              <div className='check'>
-                <input type='checkbox' />
-                <span>remember me</span>
-              </div>
+            <div className='remember-me ele-center'>
               <a href='#'>forgot password ?</a>
+              <input type="submit" value="Login" />
             </div>
-            <input type="submit" value="sign in" />
+           
           </form>
 
         </div>

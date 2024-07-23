@@ -2,6 +2,8 @@
 
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Aside from './Aside';
+import Main  from './Main';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -18,10 +20,11 @@ function Dashboard() {
   }, [navigate]);
 
   return (
-    <div>
-      <h2>Dashboard</h2>
-      {/* Your dashboard content */}
-    </div>
+          <div className='container'>
+            <Aside/>
+            <Main/>
+          </div>
+
   );
 }
 

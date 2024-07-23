@@ -1,3 +1,8 @@
+*{
+  padding: 0;
+  margin: 0;
+}
+
 :root {
     --color-dark: #1d2027;
     --color-green: #30b938;
@@ -5,17 +10,36 @@
     --color-dark-gray: #35363b;
     --color-very-light-gray: #edeef3;
   }
-
+   .text-center{
+    text-align: center;
+  }
 .aside {
     width: 250px;
-    background-color: #f4f4f4;
+    color: var(--color-very-light-gray);
     padding: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    height: 100vh;
+    background-color: var(--color-dark);
   }
+  .aside .aside__logo img {
+    width: 66px;
+  }
+  .aside .aside__navigation ul {
+
   
-  .aside ul {
+  }
+  .aside .aside__navigation li  {
     list-style: none;
-    padding: 0;
+    display: flex;
+    align-items: center;
+    padding: 10px 30px;
+    background-color: var(--color-dark-gray);
+    border-radius: 5px;
+    margin: 20px 0;
+
+  }
+  .aside .aside__navigation li span {
+    padding-left: 10px;
   }
   
   .aside li {
@@ -28,55 +52,55 @@
   /************ login page  ************/
   /* src/components/LoginPage.css */
 
-.login-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: #f4f4f4;
-}
-
-.login-form {
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.loginFormParent{
   width: 100%;
-  max-width: 400px;
-  height: 250px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
+    height: 100vh;
+    background-image: url('../imgs/back.jpg.crdownload');
+    background-size: cover;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--color-very-light-gray);
+   
+}
+.loginFormParent .sign-in {
+  background-color: var(--color-dark-gray);
+  height: 427px;
+  width: 350px;
+  border-radius: 10px;
+  padding: 30px;
 }
 
-.login-form input {
-  width: calc(100% - 20px);
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
+.loginFormParent .sign-in .ele-center   {
+  width: 330px;
+  margin: 15px auto;
 }
+.loginFormParent .sign-in label {
+  margin-bottom: 10px;
+}
+.loginFormParent .sign-in input , .loginFormParent .sign-in label{
+  display: block;
 
-.login-form button {
-  width: 100%;
-  padding: 10px;
-  background-color: #007bff;
-  color: #ffffff;
+}
+.loginFormParent .sign-in input {
+  width: 320px;
+  padding: 15px 0 15px 5px;
+  border-radius: 5px;
   border: none;
-  border-radius: 4px;
-  font-size: 16px;
+  outline: none;
+
+}
+.loginFormParent .sign-in input[type="submit"]{
+  background-color: var(--color-green);
+  font-size: 20px;
   cursor: pointer;
-  transition: background-color 0.3s;
 }
+.loginFormParent .sign-in  .remember-me a {
+  margin-bottom: 20px;
+  display: block;
+  width: 328px;
 
-.login-form button:hover {
-  background-color: #0056b3;
-}
-
-.error-message {
-  color: #ff0000;
-  font-size: 14px;
-  margin-top: 10px;
-}
+} 

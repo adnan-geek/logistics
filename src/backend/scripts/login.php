@@ -3,6 +3,8 @@
 header("Access-Control-Allow-Origin: http://localhost:3000");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
+// init the session 
+session_start();
 
 // Include the database connection
 $mysqli = include('../config/database.php');
@@ -19,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param('s', $username);
     $stmt->execute();
     $stmt->store_result();
-    $testpass = password_hash($password,PASSWORD_DEFAULT);
+    $testpass = password_hash($password,PASSWORD_BCRYPT);
     // Check if any row exists with given username
     if ($stmt->num_rows > 0) {
         $stmt->bind_result($id, $hashed_password);
@@ -28,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Verify the password
         if (password_verify($password, $hashed_password)) {
             // User exists and password is correct
+            $_SESSION['admin_id'] = $id;
             $response = ['success' => true];
         } else {
             // Invalid password
