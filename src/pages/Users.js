@@ -6,6 +6,7 @@ const Users = () => {
   return (
     <div>
       <h1>Users Page</h1>
+      
       <UsersManager />  // Include UserManager to handle and display user data
     </div>
   );

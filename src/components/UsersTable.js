@@ -2,7 +2,7 @@ import React from 'react';
 
 const UsersTable = ({ users, onEdit, onDelete }) => {
   return (
-    <table>
+    <table className='users__table'>
       <thead>
         <tr>
           <th>ID</th>
@@ -22,9 +22,9 @@ const UsersTable = ({ users, onEdit, onDelete }) => {
             <td>{user.username}</td>
             <td>{user.email}</td>
             <td>{user.address}</td>
-            <td>{user.dateJoined}</td>
-            <td>{user.solarSystemType}</td>
-            {/* <td>${user.bills.toFixed(2)}</td> */}
+            <td>{user.date_joined}</td>
+            <td>{user.solar_system_type}</td>
+            <td>${user.bills}</td>
             <td>
               <button onClick={() => onEdit(user.id)}>Edit</button>
               <button onClick={() => onDelete(user.id)}>Delete</button>
