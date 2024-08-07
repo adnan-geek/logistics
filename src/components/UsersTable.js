@@ -1,5 +1,6 @@
 import React from 'react';
-
+import editPng from '../imgs/edit.png';
+import trashPng from '../imgs/trash.png'
 const UsersTable = ({ users, onEdit, onDelete }) => {
   return (
     <table className='users__table'>
@@ -26,8 +27,8 @@ const UsersTable = ({ users, onEdit, onDelete }) => {
             <td>{user.solar_system_type}</td>
             <td>${user.bills}</td>
             <td>
-              <button onClick={() => onEdit(user.id)}>Edit</button>
-              <button onClick={() => onDelete(user.id)}>Delete</button>
+              <button onClick={() => onEdit(user.id)}><img  src={editPng} /></button>
+              <button onClick={() => onDelete(user.id)}><img  src={trashPng} /></button>
             </td>
           </tr>
         ))}

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import UsersTable from './UsersTable';
+import EditUserModal from './EditUserModal';
+import '../styles/main.css';
 
 const UserManager = () => {
     const [users, setUsers] = useState([]);
@@ -11,7 +13,8 @@ const UserManager = () => {
         dateAdded: '',
         idCard: ''
     });
-
+    const [editingUser, setEditingUser] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     useEffect(() => {
         axios.get('http://localhost/myapp/solarsystem/src/backend/scripts/users.php')
             .then(response => {console.log(response.data); setUsers(response.data)})
@@ -26,6 +29,38 @@ const UserManager = () => {
         console.log('Add new user action triggered');
         // Here you could open a modal or redirect to a form page
     };
+    const handleEditUser = (userId) => {
+        const user = users.find(u => u.id === userId);
+        if (user) {
+            setEditingUser(user);
+            setIsModalOpen(true);  // Open the modal
+        }
+    };
+
+    const handleDeleteUser = (userId) => {
+        if (window.confirm("Are you sure you want to delete this user?")) {
+            axios.delete(`http://localhost/myapp/solarsystem/src/backend/scripts/users.php?id=${userId}`)
+                .then(response => {
+                    setUsers(response.data);  // Assuming the API returns the updated list
+                })
+                .catch(error => {
+                    console.error('Error deleting user:', error);
+                });
+        }
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        axios.get('http://localhost/myapp/solarsystem/src/backend/scripts/users.php')
+        .then(response => {
+            setUsers(response.data);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    };
+
+
+// Pass `fetchUsers` to `EditUserModal` when opening it
+
 
     return (
         <div className="user-manager">
@@ -45,7 +80,10 @@ const UserManager = () => {
                     <option value="Pending">Pending</option>
                 </select>
             </div>
-            <UsersTable users={users} />
+            <UsersTable users={users} onEdit={handleEditUser} onDelete={handleDeleteUser} />
+            {isModalOpen && editingUser && 
+                <EditUserModal user={editingUser} onClose={handleCloseModal} />
+            }
         </div>
     );
 };
