@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import UsersTable from './UsersTable';
+import ClientsTable from './ClientsTable';
 import EditUserModal from './EditUserModal';
 import '../styles/main.css';
 
 const UserManager = () => {
-    const [users, setUsers] = useState([]);
+    const [users, setUsers] = useState([]); // Original users
+    const [filteredUsers, setFilteredUsers] = useState([]); // Filtered users to display
     const [filters, setFilters] = useState({
         username: '',
         email: '',
@@ -15,33 +16,37 @@ const UserManager = () => {
     });
     const [editingUser, setEditingUser] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
     useEffect(() => {
-        axios.get('http://localhost/myapp/solarsystem/src/backend/scripts/users.php')
-            .then(response => {console.log(response.data); setUsers(response.data)})
-            .catch(error => console.error('Error fetching data:', error));
+        fetchUsers();
     }, []);
+
+    useEffect(() => {
+        applyFilters();
+    }, [filters, users]);
 
     const handleFilterChange = (e) => {
         setFilters({ ...filters, [e.target.name]: e.target.value });
     };
 
     const handleAddUser = () => {
-        console.log('Add new user action triggered');
-        // Here you could open a modal or redirect to a form page
+        setIsModalOpen(true);
+        setEditingUser(null);
     };
+
     const handleEditUser = (userId) => {
         const user = users.find(u => u.id === userId);
         if (user) {
             setEditingUser(user);
-            setIsModalOpen(true);  // Open the modal
+            setIsModalOpen(true);
         }
     };
 
     const handleDeleteUser = (userId) => {
         if (window.confirm("Are you sure you want to delete this user?")) {
-            axios.delete(`http://localhost/myapp/solarsystem/src/backend/scripts/users.php?id=${userId}`)
+            axios.delete(`http://localhost/myapp/solarsystem/src/backend/scripts/edit-user.php?id=${userId}`)
                 .then(response => {
-                    setUsers(response.data);  // Assuming the API returns the updated list
+                    fetchUsers(); // Refresh the user list after deletion
                 })
                 .catch(error => {
                     console.error('Error deleting user:', error);
@@ -51,16 +56,32 @@ const UserManager = () => {
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        axios.get('http://localhost/myapp/solarsystem/src/backend/scripts/users.php')
-        .then(response => {
-            setUsers(response.data);
-        })
-        .catch(error => console.error('Error fetching data:', error));
     };
 
+    const fetchUsers = () => {
+        axios.get('http://localhost/myapp/solarsystem/src/backend/scripts/users.php')
+            .then(response => {
+                console.log(response); // Initially, display all users
 
-// Pass `fetchUsers` to `EditUserModal` when opening it
+                setUsers(response.data);
 
+                setFilteredUsers(response.data);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    };
+
+    const applyFilters = () => {
+        const filtered = users.filter(user => {
+            return Object.keys(filters).every(key => {
+                if (!filters[key]) return true;
+                if (key === 'dateAdded') {
+                    return new Date(user[key]).toISOString().split('T')[0] === new Date(filters[key]).toISOString().split('T')[0];
+                }
+                return user[key]?.toLowerCase().includes(filters[key].toLowerCase());
+            });
+        });
+        setFilteredUsers(filtered);
+    };
 
     return (
         <div className="user-manager">
@@ -80,9 +101,9 @@ const UserManager = () => {
                     <option value="Pending">Pending</option>
                 </select>
             </div>
-            <UsersTable users={users} onEdit={handleEditUser} onDelete={handleDeleteUser} />
+            <ClientsTable users={filteredUsers} onEdit={handleEditUser} onDelete={handleDeleteUser} />
             {isModalOpen && editingUser && 
-                <EditUserModal user={editingUser} onClose={handleCloseModal} />
+                <EditUserModal user={editingUser} onClose={handleCloseModal} updateData={fetchUsers} />
             }
         </div>
     );

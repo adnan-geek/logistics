@@ -4,7 +4,7 @@ import Aside from './Aside';
 import Analytics from '../pages/Analytics';
 import Settings from '../pages/Settings';
 import Users from '../pages/Users';
-import EnergyUsage from '../pages/Energyusage';
+import Vehicles from '../pages/Vehicles';
 
 const Main = () => {
   return (
@@ -15,7 +15,7 @@ const Main = () => {
           <Route path="analytics" element={<Analytics />} />
           <Route path="settings" element={<Settings />} />
           <Route path="users" element={<Users />} />
-          <Route path="energy-usage" element={<EnergyUsage />} />
+          <Route path="vehicles" element={<Vehicles />} />
           <Route path="/" element={<Navigate replace to="analytics" />} />
         </Routes>
       </main>

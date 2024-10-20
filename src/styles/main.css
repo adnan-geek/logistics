@@ -12,11 +12,7 @@
 
 :root {
     --color-dark: #1d2027;
-    --color-green: #30b938;
-    --color-light-gray: #f2f3f8;
-    --color-dark-gray: #35363b;
-    --color-very-light-gray: #edeef3;
-    --color-mid-gray : #cacbcf;
+    --color-orange: #e77d35;
   }
    .text-center{
     text-align: center;
@@ -68,19 +64,19 @@
 .loginFormParent{
   width: 100%;
     height: 100vh;
-    background-image: url('../imgs/back.jpg.crdownload');
+    background-image: url('../imgs/packages.jpg');
     background-size: cover;
     position: absolute;
     background-repeat: no-repeat;
-    background-position: center 20%;
+    background-position: center 80%;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: var(--color-very-light-gray);
+    color: var(--color-dark);
    
 }
 .loginFormParent .sign-in {
-  background-color: var(--color-dark-gray);
+  background-color: #ffffff6e;
   height: 427px;
   width: 350px;
   border-radius: 10px;
@@ -107,7 +103,7 @@
 
 }
 .loginFormParent .sign-in input[type="submit"]{
-  background-color: var(--color-green);
+  background-color: var(--color-skyblue);
   font-size: 20px;
   cursor: pointer;
 }
@@ -195,6 +191,7 @@ input[type="text"], input[type="date"], select {
   border: 1px solid #ccc;
 }
 /**** edit user modal ***/
+
 .modal-overlay {
   width: 100%;
   height: 100vh;
@@ -209,8 +206,16 @@ input[type="text"], input[type="date"], select {
   justify-content: center;
   align-items: center;
 }
+.modal-overlay .email__username , .modal-overlay .date__system__type{
+  display: flex;
+  justify-content: space-between;
+}
+.modal-overlay .email__username label {
+  width: 45%;
+}
+
 .modal-overlay form h2{
-  padding: 10px 0;
+  padding: 5px 0;
   text-align: center;
 }
 .modal-overlay > div  {
@@ -249,4 +254,228 @@ input[type="text"], input[type="date"], select {
 .modal-overlay form .modal-actions button:nth-of-type(2){
   background-color: var(--color-dark-gray);
   color: white;
+}
+/* // home page styles  */
+/* General styling */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.homepage {
+  overflow: hidden;
+}
+
+/* Header styling */
+.homepage__header {
+  background-color: #333;
+  padding: 20px 0;
+  position: fixed;
+  width: 100%;
+  z-index: 10;
+}
+
+.homepage__nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  margin: auto;
+  color: white;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+.logo  img {
+  width: 60px;
+}
+
+.nav__links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+.nav__links li a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.cta {
+  padding: 10px 20px;
+  background-color: #ff914d;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.cta:hover {
+  background-color: #e77d35;
+}
+
+/* Hero section styling */
+.homepage__hero { 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+.hero__content h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  animation: fadeInUp 1.5s ease;
+}
+
+.hero__content p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  animation: fadeInUp 2s ease;
+}
+
+.hero__cta {
+  animation: fadeInUp 2.5s ease;
+}
+.homepage__hero {
+  position: relative;
+  overflow: hidden;
+  z-index:1;
+  height: 700px; /* Adjust based on your design */
+}
+
+.hero__video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  z-index: 2; /* Place video behind content */
+  transform: translate(-50%, -50%);
+}
+
+.hero__content {
+  position: relative; /* Ensure content stays above the video */
+  z-index: 3; /* Raise content above the video */
+  text-align: center; /* Center text if desired */
+  color: white; /* Adjust text color for visibility */
+}
+
+
+/* Main content styling */
+.homepage__main {
+  padding: 80px 20px;
+}
+
+/* // about us  */
+section.about__us {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+section.about__us .company__description {
+   width: 40%;
+}
+section.about__us img {
+  border-radius: 5px;
+  height: 400px;
+}
+section.about__us h3 , section.about__us h2 {
+  color: var(--color-orange) !important;
+}
+section.about__us h1 {
+  padding-bottom: 20px;
+}
+section.about__us p {
+  padding: 20px 0;
+  line-height: 25px;
+}
+/* ************************* */
+.about, .services {
+  max-width: 1100px;
+  margin: auto;
+  text-align: center;
+  padding: 50px 0;
+}
+
+.services {
+  background-color: #f8f8f8;
+}
+
+.service__list {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.service__item {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  width: 300px;
+}
+
+.service__item:hover {
+  transform: translateY(-10px);
+}
+
+/* Footer styling */
+.homepage__footer {
+  background-color: #333;
+  color: white;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.footer__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.footer__links a {
+  color: white;
+  margin: 0 10px;
+  text-decoration: none;
+}
+
+.footer__links a:hover {
+  text-decoration: underline;
+}
+
+.footer__social a {
+  color: #ff914d;
+  margin: 0 10px;
+  text-decoration: none;
+}
+
+.footer__social a:hover {
+  color: #e77d35;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

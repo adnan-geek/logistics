@@ -4,9 +4,10 @@ import { Link } from 'react-router-dom';
 import '../styles/main.css';
 import logo from '../imgs/logo.png';
 import dash from '../imgs/dash.png';
-import control from '../imgs/control.png';
+import settings from '../imgs/control.png';
 import users from '../imgs/users.png';
-import usage from '../imgs/usage.png';
+import vehicles from '../imgs/vehicles.png';
+import shipments from '../imgs/shipments.png'
 const Aside = () => {
   return (
     <aside className="aside">
@@ -16,9 +17,10 @@ const Aside = () => {
       <div className='aside__navigation'>
         <ul>
             <li><img src={dash} alt="Dashboard icon"/><Link to="/main/analytics">Dashboard</Link></li>
-            <li><img src={control} alt="Settings icon"/><Link to="/main/settings">Settings</Link></li>
+            <li><img src={shipments} alt="Shipments icon"/><Link to="/main/settings">Shipments</Link></li>
+            <li><img src={vehicles} alt="vehicles icon"/><Link to="/main/vehicles">Vehicles</Link></li>
             <li><img src={users} alt="Users icon"/><Link to="/main/users">Users</Link></li>
-            <li><img src={usage} alt="Energy Usage icon"/><Link to="/main/energy-usage">Energy Usage</Link></li>
+            <li><img src={settings} alt="Settings icon"/><Link to="/main/settings">Settings</Link></li>
 
         </ul>
       </div>
