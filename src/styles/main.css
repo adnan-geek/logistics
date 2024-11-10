@@ -479,3 +479,222 @@ section.about__us p {
     transform: translateY(0);
   }
 }
+/********************* shipments styles  ************************/
+.shipment-table-container {
+  margin: 20px;
+}
+
+.shipment-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.shipment-table th, .shipment-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.shipment-table th {
+  background-color: #f8f9fa;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.breadcrumb {
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.breadcrumb span {
+  color: #333;
+}
+
+.shipment-table {
+  width: 90%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.shipment-table th, .shipment-table td {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+.shipment-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.btn-action {
+  padding: 6px 12px;
+  margin: 4px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-action:hover {
+  background-color: #0056b3;
+}
+
+.pagination {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  margin: 0 5px;
+  border: 1px solid #ddd;
+  background-color: #f8f8f8;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.pagination button:hover {
+  background-color: #e6e6e6;
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Side Menu Styles */
+.side-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 600px;
+  height: 100vh;
+  background-color: white;
+  box-shadow: -4px 0px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transform: translateX(0);
+  transition: transform 0.3s ease;
+}
+
+.side-menu.open {
+  transform: translateX(0);
+}
+
+.side-menu-content {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.map-container {
+  width: 100%;
+  height: 400px;
+  margin-top: 20px;
+}
+/* Button to Add Shipment */
+.btn-add-shipment {
+  background-color: #ffffff;
+  color: #4CAF50;
+  border: 1px solid #4CAF50;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.btn-add-shipment:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* Modal Form Styles */
+.shipment-form-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.btn-submit, .btn-close {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.btn-close {
+  background-color: #f44336;
+}
+
+.btn-submit:hover, .btn-close:hover {
+  opacity: 0.9;
+}

@@ -23,6 +23,7 @@ function Dashboard() {
           <div className='container'>
             <Aside/>
             <Main/>
+            
           </div>
 
   );

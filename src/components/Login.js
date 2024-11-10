@@ -10,7 +10,7 @@ const Login = () => {
    // send request function  
    function sendRequest(data){
     
-    axios.post('http://localhost/myapp/solarsystem/src/backend/scripts/login.php', data)
+    axios.post('http://localhost/adyologistics/src/backend/scripts/login.php', data)
     .then(response => {
       // store the token in the local storage 
             if(response.data.success == true){

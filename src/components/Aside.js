@@ -17,7 +17,7 @@ const Aside = () => {
       <div className='aside__navigation'>
         <ul>
             <li><img src={dash} alt="Dashboard icon"/><Link to="/main/analytics">Dashboard</Link></li>
-            <li><img src={shipments} alt="Shipments icon"/><Link to="/main/settings">Shipments</Link></li>
+            <li><img src={shipments} alt="Shipments icon"/><Link to="/main/shipments">Shipments</Link></li>
             <li><img src={vehicles} alt="vehicles icon"/><Link to="/main/vehicles">Vehicles</Link></li>
             <li><img src={users} alt="Users icon"/><Link to="/main/users">Users</Link></li>
             <li><img src={settings} alt="Settings icon"/><Link to="/main/settings">Settings</Link></li>
