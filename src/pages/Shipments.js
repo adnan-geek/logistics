@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'; // If using React-Leaflet for maps
 import 'leaflet/dist/leaflet.css';
 
-// Sample data for shipments
-const shipmentsData = [
-  { id: '12345', sender: 'John Doe', receiver: 'Jane Smith', status: 'In Transit', shippingDate: '2024-11-10', expectedDelivery: '2024-11-15', lastUpdated: '2024-11-12 10:00 AM', location: 'Springfield', trackingNumber: '1Z999AA10123456784', weight: '2.5 kg', dimensions: '30x20x10 cm', shippingCost: '$20', paymentStatus: 'Paid', deliveryType: 'Standard', contact: '555-5678', deliveryAttempts: 1 },
-  { id: '12346', sender: 'Alice Brown', receiver: 'Bob Green', status: 'Delivered', shippingDate: '2024-11-11', expectedDelivery: '2024-11-13', lastUpdated: '2024-11-11 02:30 PM', location: 'Metropolis', trackingNumber: '1Z999AA10123456785', weight: '1.2 kg', dimensions: '15x10x5 cm', shippingCost: '$15', paymentStatus: 'Paid', deliveryType: 'Expedited', contact: '555-1234', deliveryAttempts: 1 },
-  // Add more shipments for testing...
-];
+
 
 const Shipments = () => {
+  /** fetching shipments data  ****/
+  const [shipmentsData, setShipmentsData] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost/adyologistics/src/backend/scripts/shipments.php'); // Replace with your actual API URL
+        const data = await response.json();
+        setShipmentsData(data); // Set the data received from the API
+      } catch (error) {
+        console.error("Error fetching shipments data:", error);
+      }
+    };
+    
+    fetchData();
+  }, []);
+
+  /*******************************************/
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedShipment, setSelectedShipment] = useState(null);
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
@@ -49,11 +61,8 @@ const Shipments = () => {
   };
 
   // Handle form submission
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission (e.g., API call, state update)
-    console.log('New Shipment Added:', newShipment);
-    // Clear form after submission (optional)
+
+  const clearForm = () => {
     setNewShipment({
       sender: '',
       receiver: '',
@@ -70,7 +79,6 @@ const Shipments = () => {
       contact: '',
       deliveryAttempts: '',
     });
-    // Hide the form after submission
     setIsFormVisible(false);
   };
 
@@ -199,71 +207,90 @@ const Shipments = () => {
       )}
       {/* form modal  */}
       {isFormVisible && (
-            <div className="shipment-form-modal">
-              <div className="modal-content">
-                <h3>Add New Shipment</h3>
-                <form onSubmit={handleFormSubmit}>
+            
+            <div className="overlay">
+            <div className="modal-content">
+              <h3>Add New Shipment</h3>
+              <form  action="http://localhost/adyologistics/src/backend/scripts/shipments.php" 
+                    method="post" 
+                    onSubmit={() => setTimeout(clearForm, 0)}  // Clear form after submission 
+      >
+                <div className="form-grid">
                   <div className="form-group">
                     <label>Sender:</label>
-                    <input type="text" name="sender" value={newShipment.sender} onChange={handleInputChange} required />
+                    <input type="text" name="sender"  required />
                   </div>
                   <div className="form-group">
                     <label>Receiver:</label>
-                    <input type="text" name="receiver" value={newShipment.receiver} onChange={handleInputChange} required />
+                    <input type="text" name="receiver"  required />
                   </div>
                   <div className="form-group">
                     <label>Status:</label>
-                    <input type="text" name="status" value={newShipment.status} onChange={handleInputChange} required />
+                    <select name="status" required>
+                          <option value="In Transit">In Transit</option>
+                          <option value="Delivered">Delivered</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Returned">Returned</option>
+                  </select>
                   </div>
                   <div className="form-group">
                     <label>Shipping Date:</label>
-                    <input type="date" name="shippingDate" value={newShipment.shippingDate} onChange={handleInputChange} required />
+                    <input type="date" name="shippingDate" required />
                   </div>
                   <div className="form-group">
                     <label>Expected Delivery:</label>
-                    <input type="date" name="expectedDelivery" value={newShipment.expectedDelivery} onChange={handleInputChange} required />
+                    <input type="date" name="expectedDelivery"  required />
                   </div>
                   <div className="form-group">
                     <label>Location:</label>
-                    <input type="text" name="location" value={newShipment.location} onChange={handleInputChange} required />
+                    <input type="text" name="location"  required />
                   </div>
                   <div className="form-group">
                     <label>Tracking Number:</label>
-                    <input type="text" name="trackingNumber" value={newShipment.trackingNumber} onChange={handleInputChange} required />
+                    <input type="text" name="trackingNumber"  required />
                   </div>
                   <div className="form-group">
                     <label>Weight:</label>
-                    <input type="text" name="weight" value={newShipment.weight} onChange={handleInputChange} required />
+                    <input type="text" name="weight"  required />
                   </div>
                   <div className="form-group">
                     <label>Dimensions:</label>
-                    <input type="text" name="dimensions" value={newShipment.dimensions} onChange={handleInputChange} required />
+                    <input type="text" name="dimensions"  required />
                   </div>
                   <div className="form-group">
                     <label>Shipping Cost:</label>
-                    <input type="text" name="shippingCost" value={newShipment.shippingCost} onChange={handleInputChange} required />
+                    <input type="text" name="shippingCost"  required />
                   </div>
                   <div className="form-group">
                     <label>Payment Status:</label>
-                    <input type="text" name="paymentStatus" value={newShipment.paymentStatus} onChange={handleInputChange} required />
+                    <select name="paymentStatus" required>
+                          <option value="Paid">Paid</option>
+                          <option value="Unpaid">Unpaid</option>
+                          <option value="Pending">Pending</option>
+                  </select>
                   </div>
                   <div className="form-group">
                     <label>Delivery Type:</label>
-                    <input type="text" name="deliveryType" value={newShipment.deliveryType} onChange={handleInputChange} required />
+                    <select name="deliveryType" required>
+                          <option value="Standard">Standard</option>
+                          <option value="Express">Express</option>
+                          <option value="Overnight">Overnight</option>
+                  </select>
                   </div>
                   <div className="form-group">
                     <label>Contact:</label>
-                    <input type="text" name="contact" value={newShipment.contact} onChange={handleInputChange} required />
+                    <input type="text" name="contact"  required />
                   </div>
                   <div className="form-group">
                     <label>Delivery Attempts:</label>
-                    <input type="number" name="deliveryAttempts" value={newShipment.deliveryAttempts} onChange={handleInputChange} required />
+                    <input type="number" name="deliveryAttempts"  required />
                   </div>
-                  <button type="submit" className="btn-submit">Add Shipment</button>
-                </form>
-                <button className="btn-close" onClick={() => setIsFormVisible(false)}>Close</button>
-              </div>
+                </div>
+                <button type="submit" className="btn-submit">Add Shipment</button>
+              </form>
+              <button className="btn-close" onClick={toggleForm}>Close</button>
             </div>
+          </div>
           )}
 
       {/* /**** end of form modal  */ }

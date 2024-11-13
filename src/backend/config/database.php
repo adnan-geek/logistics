@@ -6,15 +6,15 @@ $password = ''; // Replace with your database password
 $dbname = 'adyolgs'; // Replace with your database name
 
 // Create a new connection
-$mysqli = new mysqli($host, $user, $password, $dbname);
+$conn = new mysqli($host, $user, $password, $dbname);
 
 // Check the connection
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
 // Set the charset to UTF-8
-$mysqli->set_charset("utf8");
+$conn->set_charset("utf8");
 
-return $mysqli;
+return $conn;
 ?>
