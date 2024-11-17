@@ -1,6 +1,7 @@
 import React, { useState , useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'; // If using React-Leaflet for maps
 import 'leaflet/dist/leaflet.css';
+import axios from 'axios';
 
 
 
@@ -52,7 +53,7 @@ const Shipments = () => {
   };
 
   // Handle input changes
-  const handleInputChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setNewShipment((prevState) => ({
       ...prevState,
@@ -62,26 +63,41 @@ const Shipments = () => {
 
   // Handle form submission
 
-  const clearForm = () => {
-    setNewShipment({
-      sender: '',
-      receiver: '',
-      status: '',
-      shippingDate: '',
-      expectedDelivery: '',
-      location: '',
-      trackingNumber: '',
-      weight: '',
-      dimensions: '',
-      shippingCost: '',
-      paymentStatus: '',
-      deliveryType: '',
-      contact: '',
-      deliveryAttempts: '',
-    });
-    setIsFormVisible(false);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("http://localhost/adyologistics/src/backend/scripts/shipments.php", newShipment, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (response.status === 200) {
+        setNewShipment({
+          sender: '',
+          receiver: '',
+          status: '',
+          shippingDate: '',
+          expectedDelivery: '',
+          location: '',
+          trackingNumber: '',
+          weight: '',
+          dimensions: '',
+          shippingCost: '',
+          paymentStatus: '',
+          deliveryType: '',
+          contact: '',
+          deliveryAttempts: '',
+        });
+        console.log("Shipment added successfully:", response.data);
+      } else {
+        console.log("Failed to add shipment:", response.data);
+      }
+    } catch (error) {
+      console.error("Error occurred while adding shipment:", error);
+    }
   };
-
+  
   // Calculate the index of the first and last item on the current page
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -94,8 +110,14 @@ const Shipments = () => {
   const handleViewClick = (shipment) => {
     setSelectedShipment(shipment);
     setIsSideMenuOpen(true);
+    
+    
   };
-
+  const handleEditClick = (shipment)=>{
+    console.log(shipment);
+    setIsFormVisible(true);
+    setNewShipment(shipment)
+  }
   // Close side menu
   const closeSideMenu = () => {
     setIsSideMenuOpen(false);
@@ -155,7 +177,7 @@ const Shipments = () => {
               <td>{shipment.deliveryAttempts}</td>
               <td>
                 <button className="btn-action" onClick={() => handleViewClick(shipment)}>View</button>
-                <button className="btn-action">Edit</button>
+                <button className="btn-action" onClick={() => handleEditClick(shipment)}>Edit</button>
               </td>
             </tr>
           ))}
@@ -211,83 +233,151 @@ const Shipments = () => {
             <div className="overlay">
             <div className="modal-content">
               <h3>Add New Shipment</h3>
-              <form  action="http://localhost/adyologistics/src/backend/scripts/shipments.php" 
-                    method="post" 
-                    onSubmit={() => setTimeout(clearForm, 0)}  // Clear form after submission 
-      >
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label>Sender:</label>
-                    <input type="text" name="sender"  required />
-                  </div>
-                  <div className="form-group">
-                    <label>Receiver:</label>
-                    <input type="text" name="receiver"  required />
-                  </div>
-                  <div className="form-group">
-                    <label>Status:</label>
-                    <select name="status" required>
-                          <option value="In Transit">In Transit</option>
-                          <option value="Delivered">Delivered</option>
-                          <option value="Pending">Pending</option>
-                          <option value="Returned">Returned</option>
-                  </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Shipping Date:</label>
-                    <input type="date" name="shippingDate" required />
-                  </div>
-                  <div className="form-group">
-                    <label>Expected Delivery:</label>
-                    <input type="date" name="expectedDelivery"  required />
-                  </div>
-                  <div className="form-group">
-                    <label>Location:</label>
-                    <input type="text" name="location"  required />
-                  </div>
-                  <div className="form-group">
-                    <label>Tracking Number:</label>
-                    <input type="text" name="trackingNumber"  required />
-                  </div>
-                  <div className="form-group">
-                    <label>Weight:</label>
-                    <input type="text" name="weight"  required />
-                  </div>
-                  <div className="form-group">
-                    <label>Dimensions:</label>
-                    <input type="text" name="dimensions"  required />
-                  </div>
-                  <div className="form-group">
-                    <label>Shipping Cost:</label>
-                    <input type="text" name="shippingCost"  required />
-                  </div>
-                  <div className="form-group">
-                    <label>Payment Status:</label>
-                    <select name="paymentStatus" required>
-                          <option value="Paid">Paid</option>
-                          <option value="Unpaid">Unpaid</option>
-                          <option value="Pending">Pending</option>
-                  </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Delivery Type:</label>
-                    <select name="deliveryType" required>
-                          <option value="Standard">Standard</option>
-                          <option value="Express">Express</option>
-                          <option value="Overnight">Overnight</option>
-                  </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Contact:</label>
-                    <input type="text" name="contact"  required />
-                  </div>
-                  <div className="form-group">
-                    <label>Delivery Attempts:</label>
-                    <input type="number" name="deliveryAttempts"  required />
-                  </div>
-                </div>
-                <button type="submit" className="btn-submit">Add Shipment</button>
-              </form>
+              <form onSubmit={handleSubmit} className="form-grid">
+        <div className="form-group">
+          <label>Sender:</label>
+          <input
+            type="text"
+            name="sender"
+            value={newShipment.sender}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Receiver:</label>
+          <input
+            type="text"
+            name="receiver"
+            value={newShipment.receiver}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Status:</label>
+          <input
+            type="text"
+            name="status"
+            value={newShipment.status}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Shipping Date:</label>
+          <input
+            type="date"
+            name="shippingDate"
+            value={newShipment.shippingDate}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Expected Delivery:</label>
+          <input
+            type="date"
+            name="expectedDelivery"
+            value={newShipment.expectedDelivery}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Location:</label>
+          <input
+            type="text"
+            name="location"
+            value={newShipment.location}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Tracking Number:</label>
+          <input
+            type="text"
+            name="trackingNumber"
+            value={newShipment.trackingNumber}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Weight (kg):</label>
+          <input
+            type="number"
+            name="weight"
+            value={newShipment.weight}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Dimensions:</label>
+          <input
+            type="text"
+            name="dimensions"
+            value={newShipment.dimensions}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Shipping Cost:</label>
+          <input
+            type="number"
+            name="shippingCost"
+            value={newShipment.shippingCost}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Payment Status:</label>
+          <input
+            type="text"
+            name="paymentStatus"
+            value={newShipment.paymentStatus}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Delivery Type:</label>
+          <input
+            type="text"
+            name="deliveryType"
+            value={newShipment.deliveryType}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Contact:</label>
+          <input
+            type="tel"
+            name="contact"
+            value={newShipment.contact}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Delivery Attempts:</label>
+          <input
+            type="number"
+            name="deliveryAttempts"
+            value={newShipment.deliveryAttempts}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="btn-submit">
+          <button type="submit">Submit Shipment</button>
+        </div>
+      </form>
               <button className="btn-close" onClick={toggleForm}>Close</button>
             </div>
           </div>

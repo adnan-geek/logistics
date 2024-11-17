@@ -1,56 +1,67 @@
 <?php
 header("Access-Control-Allow-Origin: *"); // Allow requests from any origin
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS"); // Allow only specific HTTP methods
-header("Access-Control-Allow-Headers: Content-Type"); // Allow only specific headers
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS"); // Allow these methods
+header("Access-Control-Allow-Headers: Content-Type, Authorization"); // Allow headers
+header("Content-Type: application/json; charset=UTF-8"); // Ensure JSON response format
+
+
 // Include database connection
 include('../config/database.php');
-header('Content-Type: application/json');
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Handle GET request - Fetch all shipments
+    $sql = "SELECT * FROM shipments";
+    $result = $conn->query($sql);
 
-$sql = "SELECT * FROM shipments";
-$result = $conn->query($sql);
-
-$shipments = [];
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $shipments[] = $row;
+    $shipments = [];
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $shipments[] = $row;
+        }
     }
-}
 
-// Output data in JSON format
-echo json_encode($shipments);
+    echo json_encode($shipments);
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Handle POST request - Insert a new shipment
+    $data = json_decode(file_get_contents("php://input"), true);
 
+    // Validate input
+    if (
+        isset($data['sender'], $data['receiver'], $data['status'], $data['shippingDate'], 
+              $data['expectedDelivery'], $data['location'], $data['trackingNumber'], 
+              $data['weight'], $data['dimensions'], $data['shippingCost'], 
+              $data['paymentStatus'], $data['deliveryType'], $data['contact'], 
+              $data['deliveryAttempts'])
+    ) {
+        // Prepare SQL statement
+        $query = "INSERT INTO shipments (sender, receiver, status, shippingDate, expectedDelivery, location, trackingNumber, weight, dimensions, shippingCost, paymentStatus, deliveryType, contact, deliveryAttempts) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($query);
 
-// Check if form is submitted
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Collect and sanitize form input data
-    $sender = mysqli_real_escape_string($conn, $_POST['sender']);
-    $receiver = mysqli_real_escape_string($conn, $_POST['receiver']);
-    $status = mysqli_real_escape_string($conn, $_POST['status']);
-    $shippingDate = mysqli_real_escape_string($conn, $_POST['shippingDate']);
-    $expectedDelivery = mysqli_real_escape_string($conn, $_POST['expectedDelivery']);
-    $location = mysqli_real_escape_string($conn, $_POST['location']);
-    $trackingNumber = mysqli_real_escape_string($conn, $_POST['trackingNumber']);
-    $weight = mysqli_real_escape_string($conn, $_POST['weight']);
-    $dimensions = mysqli_real_escape_string($conn, $_POST['dimensions']);
-    $shippingCost = mysqli_real_escape_string($conn, $_POST['shippingCost']);
-    $paymentStatus = mysqli_real_escape_string($conn, $_POST['paymentStatus']);
-    $deliveryType = mysqli_real_escape_string($conn, $_POST['deliveryType']);
-    $contact = mysqli_real_escape_string($conn, $_POST['contact']);
-    $deliveryAttempts = mysqli_real_escape_string($conn, $_POST['deliveryAttempts']);
-    
-    // Insert data into the database
-    $query = "INSERT INTO shipments (sender, receiver, status, shippingDate, expectedDelivery, location, trackingNumber, weight, dimensions, shippingCost, paymentStatus, deliveryType, contact, deliveryAttempts) 
-              VALUES ('$sender', '$receiver', '$status', '$shippingDate', '$expectedDelivery', '$location', '$trackingNumber', '$weight', '$dimensions', '$shippingCost', '$paymentStatus', '$deliveryType', '$contact', '$deliveryAttempts')";
+        // Bind parameters
+        $stmt->bind_param(
+            "ssssssssssssss", 
+            $data['sender'], $data['receiver'], $data['status'], $data['shippingDate'], 
+            $data['expectedDelivery'], $data['location'], $data['trackingNumber'], 
+            $data['weight'], $data['dimensions'], $data['shippingCost'], 
+            $data['paymentStatus'], $data['deliveryType'], $data['contact'], 
+            $data['deliveryAttempts']
+        );
 
-    if (mysqli_query($conn, $query)) {
-        echo "Shipment added successfully.";
+        // Execute statement
+        if ($stmt->execute()) {
+            echo json_encode(['message' => 'Shipment added successfully.']);
+        } else {
+            echo json_encode(['error' => 'Failed to add shipment: ' . $stmt->error]);
+        }
+
+        $stmt->close();
     } else {
-        echo "Error: " . mysqli_error($conn);
+        // Handle missing fields
+        echo json_encode(['error' => 'Missing required fields.']);
     }
-
-    // Close the database connection
-    mysqli_close($conn);
 }
 
+// Close the database connection
+$conn->close();
 ?>
