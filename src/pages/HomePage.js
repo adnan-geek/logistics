@@ -1,112 +1,194 @@
-import React from 'react';
-import '../styles/main.css';
-import logo from '../imgs/logo.png';
-import banner from '../imgs/deliverytruck.jpg';
-import fastD from '../imgs/fastdelivery.mp4';
-import lgs from '../imgs/lgs.jpg';
-import localD from '../imgs/localD.jpg';
-import localD1 from '../imgs/localD1.jpg';
+import React, { useState } from 'react';
+import TrackerProgress from '../components/TrackerProgress.js';
+import { 
+  Truck, 
+  Package, 
+  MapPin, 
+  CheckCircle,
+  Menu,
+  X
+} from 'lucide-react';
 
+const LogisticsHomepage = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-const HomePage = () => {
+  const COLORS = {
+    darkGray: '#333333',
+    orange: '#ff853e',
+    white: '#ffffff'
+  };
+
+  const services = [
+    {
+      icon: <Truck className="w-12 h-12" color={COLORS.orange} />,
+      title: "Transportation",
+      description: "Efficient transportation solutions for your business"
+    },
+    {
+      icon: <Package className="w-12 h-12" color={COLORS.orange} />,
+      title: "Packaging",
+      description: "Secure and professional packaging services"
+    },
+    {
+      icon: <MapPin className="w-12 h-12" color={COLORS.orange} />,
+      title: "Local Delivery",
+      description: "Fast and reliable local delivery network"
+    }
+  ];
+
   return (
-    <div className="homepage">
-      {/* Header Section */}
-      <header className="homepage__header">
-        <nav className="homepage__nav">
-          <div className="logo"><img src={logo}/></div>
-          <ul className="nav__links">
-          <li><a href="#home">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#services">Services</a></li>
-            <li><a href="#pricing">Pricing</a></li>
-            <li><a href="#testimonials">Testimonials</a></li>
-            <li><a href="#faqs">FAQs</a></li>
-            <li><a href="#tracking">Tracking</a></li>
-            <li><a href="#contact">Contact</a></li>
+    <div className="bg-white">
+      {/* Navigation */}
+      <nav 
+        className="fixed w-full z-50 py-4"
+        style={{ backgroundColor: COLORS.darkGray }}
+      >
+        <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
+          <div className="text-white text-2xl font-bold">ADYO Logistics</div>
+          
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex space-x-6 items-center">
+            <a href="#" className="text-white hover:text-[#ff853e] transition">Home</a>
+            <a href="#" className="text-white hover:text-[#ff853e] transition">Services</a>
+            <a href="#" className="text-white hover:text-[#ff853e] transition">About</a>
+            <a href="#" className="text-white hover:text-[#ff853e] transition">Contact</a>
+            <button 
+              className="px-6 py-2 rounded-full text-white"
+              style={{ 
+                backgroundColor: COLORS.orange,
+                color: COLORS.white
+              }}
+            >
+              Get Quote
+            </button>
+          </div>
 
-          </ul>
-          <button className="cta">Get a Quote</button>
-        </nav>
+          {/* Mobile Menu Toggle */}
+          <div className="md:hidden">
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-white"
+            >
+              {mobileMenuOpen ? <X /> : <Menu />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div 
+            className="md:hidden absolute left-0 right-0 top-full"
+            style={{ backgroundColor: COLORS.darkGray }}
+          >
+            <div className="flex flex-col space-y-4 p-4">
+              <a href="#" className="text-white">Home</a>
+              <a href="#" className="text-white">Services</a>
+              <a href="#" className="text-white">About</a>
+              <a href="#" className="text-white">Contact</a>
+              <button 
+                className="px-6 py-2 rounded-full text-white"
+                style={{ 
+                  backgroundColor: COLORS.orange,
+                  color: COLORS.white
+                }}
+              >
+                Get Quote
+              </button>
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* Hero Section */}
+      <header 
+        className="relative pt-24 pb-16 text-white flex items-center"
+        style={{ backgroundColor: COLORS.darkGray }}
+      >
+        <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h1 
+              className="text-4xl font-bold mb-4"
+              style={{ color: COLORS.orange }}
+            >
+              Reliable Logistics Solutions
+            </h1>
+            <p className="text-xl mb-6">
+              Streamline your shipping with our comprehensive logistics services
+            </p>
+            <div className="flex space-x-4">
+              <button 
+                className="px-6 py-3 rounded-full"
+                style={{ 
+                  backgroundColor: COLORS.orange,
+                  color: COLORS.white
+                }}
+              >
+                Our Services
+              </button>
+              <button 
+                className="px-6 py-3 rounded-full border"
+                style={{ 
+                  borderColor: COLORS.orange,
+                  color: COLORS.orange
+                }}
+              >
+                Contact Us
+              </button>
+            </div>
+          </div>
+          <div className="hidden md:block">
+            <Truck size={300} color={COLORS.orange} />
+          </div>
+        </div>
       </header>
 
-    {/* Hero Section */}
-        <section className="homepage__hero">
-          <video className="hero__video" autoPlay loop muted>
-            <source src={fastD} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-          <div className="hero__content">
-            <h1>Reliable Small Shipment Solutions</h1>
-            <p>At FastLogistics, we provide efficient transportation and logistics services </p>
-            <p> tailored for small shipments and local deliveries.</p>
-            <button className="cta hero__cta">Learn More</button>
+      {/* Services Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 
+            className="text-3xl font-bold text-center mb-12"
+            style={{ color: COLORS.darkGray }}
+          >
+            Our Services
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {services.map((service, index) => (
+              <div 
+                key={index} 
+                className="text-center p-6 rounded-lg shadow-md"
+                style={{ borderColor: COLORS.orange }}
+              >
+                <div className="flex justify-center mb-4">
+                  {service.icon}
+                </div>
+                <h3 
+                  className="text-xl font-semibold mb-3"
+                  style={{ color: COLORS.darkGray }}
+                >
+                  {service.title}
+                </h3>
+                <p className="text-gray-600">{service.description}</p>
+              </div>
+            ))}
           </div>
-        </section>
-
-
-      {/* Main Section */}
-      <main className="homepage__main">
-       <section className='about__us'>
-              <div className="company__description">
-                      <h1>ADYO Logistics</h1>
-                      <h2>Your Trusted Partner in Small Shipments</h2>
-                      <p>
-                        ADYO Logistics specializes in providing efficient transportation and logistics solutions tailored specifically for small shipments. Our mission is to streamline the delivery process for businesses, ensuring that every package reaches its destination safely and on time.
-                      </p>
-                      <h3>Comprehensive Solutions</h3>
-                      <p>
-                        We offer a full range of services, including local deliveries, logistics planning, and real-time shipment tracking. With a focus on small trucks, FastLogistics is equipped to handle the unique needs of our clients, providing them with the resources and support necessary for seamless operations.
-                      </p>
-                      <h3>Commitment to Excellence</h3>
-                      <p>
-                        At FastLogistics, we pride ourselves on our commitment to customer satisfaction. Our integrated approach ensures that all aspects of the transportation process are managed efficiently, allowing us to exceed our clients' expectations and foster long-lasting partnerships.
-                      </p>
-            </div>
-            <div className='delivery-banner'>
-                <img src={banner}/>
-            </div>
-       </section>
-     
-
-        <section id="services" className="services">
-          <h2>Our Services</h2>
-          <div className="service__list">
-            <div className="service__item">
-              <img src={localD1}/>
-              <h3>Local Deliveries</h3>
-              <p>We provide fast and reliable local delivery services, perfect for small packages and goods.</p>
-            </div>
-            <div className="service__item">
-            <img src={localD}/>
-              <h3>Small Truck Transportation</h3>
-              <p>Our fleet of small trucks is ideal for efficiently handling small to medium-sized shipments within cities or between regions.</p>
-            </div>
-            <div className="service__item">
-            <img src={lgs}/>
-              <h3>Logistics Solutions</h3>
-              <p>We offer comprehensive logistics services, from route planning to delivery tracking, ensuring smooth and reliable shipments.</p>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* Footer Section */}
-      <footer className="homepage__footer">
-        <div className="footer__content">
-          <div className="footer__about">
-            <h4>FastLogistics</h4>
-            <p>Streamlining transportation and logistics for small businesses and local deliveries.</p>
-          </div>
-          <div className="footer__links">
-            <a href="#about">About</a>
-            <a href="#services">Services</a>
-            <a href="#contact">Contact</a>
-          </div>
-          <div className="footer__social">
-            <a href="#facebook">Facebook</a>
-            <a href="#twitter">Twitter</a>
-            <a href="#linkedin">LinkedIn</a>
+        </div>
+      </section>
+          <TrackerProgress/>
+      {/* Footer */}
+      <footer 
+        className="py-12 text-white"
+        style={{ backgroundColor: COLORS.darkGray }}
+      >
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <h4 className="text-2xl font-bold mb-4">ADYO Logistics</h4>
+          <p className="mb-6">
+            Your trusted partner in efficient logistics and transportation
+          </p>
+          <div className="flex justify-center space-x-4">
+            <a href="#" className="hover:text-[#ff853e] transition">Home</a>
+            <a href="#" className="hover:text-[#ff853e] transition">Services</a>
+            <a href="#" className="hover:text-[#ff853e] transition">About</a>
+            <a href="#" className="hover:text-[#ff853e] transition">Contact</a>
           </div>
         </div>
       </footer>
@@ -114,4 +196,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default LogisticsHomepage;

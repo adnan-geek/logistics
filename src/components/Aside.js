@@ -1,28 +1,84 @@
-// src/components/Aside/Aside.js
 import React from 'react';
 import { Link } from 'react-router-dom';
-import '../styles/main.css';
-import logo from '../imgs/logo.png';
-import dash from '../imgs/dash.png';
-import settings from '../imgs/control.png';
-import users from '../imgs/users.png';
-import vehicles from '../imgs/vehicles.png';
-import shipments from '../imgs/shipments.png'
+import {
+  HomeIcon,
+  TruckIcon,
+  UsersIcon,
+  Cog6ToothIcon,
+  ArchiveBoxIcon,
+} from '@heroicons/react/24/outline'; // Importing Heroicons
+
 const Aside = () => {
   return (
-    <aside className="aside">
-      <div className='aside__logo'>
-          <img src={logo} alt='logo'/>
+    <aside className="bg-gray-800 text-gray-200 w-64 min-h-screen flex flex-col shadow-lg">
+      {/* Logo Section */}
+      <div className="flex items-center justify-center py-6 border-b border-gray-700">
+        <h1 className="text-xl font-bold text-white">Afyco Logistics</h1>
       </div>
-      <div className='aside__navigation'>
-        <ul>
-            <li><img src={dash} alt="Dashboard icon"/><Link to="/main/analytics">Dashboard</Link></li>
-            <li><img src={shipments} alt="Shipments icon"/><Link to="/main/shipments">Shipments</Link></li>
-            <li><img src={vehicles} alt="vehicles icon"/><Link to="/main/vehicles">Vehicles</Link></li>
-            <li><img src={users} alt="Users icon"/><Link to="/main/users">Users</Link></li>
-            <li><img src={settings} alt="Settings icon"/><Link to="/main/settings">Settings</Link></li>
 
+      {/* Navigation Section */}
+      <nav className="flex-grow mt-4">
+        <ul className="space-y-4">
+          {/* Dashboard */}
+          <li>
+            <Link
+              to="/main/analytics"
+              className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition"
+            >
+              <HomeIcon className="h-6 w-6 text-gray-400" />
+              <span className="font-medium">Dashboard</span>
+            </Link>
+          </li>
+
+          {/* Shipments */}
+          <li>
+            <Link
+              to="/main/shipments"
+              className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition"
+            >
+              <ArchiveBoxIcon className="h-6 w-6 text-gray-400" />
+              <span className="font-medium">Shipments</span>
+            </Link>
+          </li>
+
+          {/* Vehicles */}
+          <li>
+            <Link
+              to="/main/vehicles"
+              className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition"
+            >
+              <TruckIcon className="h-6 w-6 text-gray-400" />
+              <span className="font-medium">Vehicles</span>
+            </Link>
+          </li>
+
+          {/* Users */}
+          <li>
+            <Link
+              to="/main/users"
+              className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition"
+            >
+              <UsersIcon className="h-6 w-6 text-gray-400" />
+              <span className="font-medium">Users</span>
+            </Link>
+          </li>
+
+          {/* Settings */}
+          <li>
+            <Link
+              to="/main/settings"
+              className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition"
+            >
+              <Cog6ToothIcon className="h-6 w-6 text-gray-400" />
+              <span className="font-medium">Settings</span>
+            </Link>
+          </li>
         </ul>
+      </nav>
+
+      {/* Footer */}
+      <div className="py-4 border-t border-gray-700 text-center">
+        <p className="text-sm text-gray-500">&copy; 2024 Afyco Logistics</p>
       </div>
     </aside>
   );

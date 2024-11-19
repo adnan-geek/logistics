@@ -1,36 +1,16 @@
-import React, { useState , useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'; // If using React-Leaflet for maps
-import 'leaflet/dist/leaflet.css';
+import React, { useState, useEffect } from 'react';
+import { FaEye, FaEdit } from 'react-icons/fa'; // FontAwesome icons for View and Edit
 import axios from 'axios';
-
-
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const Shipments = () => {
-  /** fetching shipments data  ****/
   const [shipmentsData, setShipmentsData] = useState([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('http://localhost/adyologistics/src/backend/scripts/shipments.php'); // Replace with your actual API URL
-        const data = await response.json();
-        setShipmentsData(data); // Set the data received from the API
-      } catch (error) {
-        console.error("Error fetching shipments data:", error);
-      }
-    };
-    
-    fetchData();
-  }, []);
-
-  /*******************************************/
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedShipment, setSelectedShipment] = useState(null);
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
-  const itemsPerPage = 10;
-  // State for toggling the visibility of the form
   const [isFormVisible, setIsFormVisible] = useState(false);
-
-  // State for managing the form input values
   const [newShipment, setNewShipment] = useState({
     sender: '',
     receiver: '',
@@ -47,31 +27,42 @@ const Shipments = () => {
     contact: '',
     deliveryAttempts: '',
   });
-  // Toggle form visibility
-  const toggleForm = () => {
-    setIsFormVisible(!isFormVisible);
-  };
 
-  // Handle input changes
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost/adyologistics/src/backend/scripts/shipments.php');
+        const data = await response.json();
+        setShipmentsData(data);
+      } catch (error) {
+        console.error('Error fetching shipments data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const itemsPerPage = 10;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentShipments = shipmentsData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const toggleForm = () => setIsFormVisible(!isFormVisible);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setNewShipment((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setNewShipment((prevState) => ({ ...prevState, [name]: value }));
   };
-
-  // Handle form submission
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost/adyologistics/src/backend/scripts/shipments.php", newShipment, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const response = await axios.post('http://localhost/adyologistics/src/backend/scripts/shipments.php', newShipment, {
+        headers: { 'Content-Type': 'application/json' },
       });
-  
+
       if (response.status === 200) {
         setNewShipment({
           sender: '',
@@ -89,301 +80,254 @@ const Shipments = () => {
           contact: '',
           deliveryAttempts: '',
         });
-        console.log("Shipment added successfully:", response.data);
+        setShipmentsData([...shipmentsData, newShipment]); // Add new shipment to local state
+        setIsFormVisible(false); // Hide the form after submission
       } else {
-        console.log("Failed to add shipment:", response.data);
+        console.log('Failed to add shipment:', response.data);
       }
     } catch (error) {
-      console.error("Error occurred while adding shipment:", error);
+      console.error('Error occurred while adding shipment:', error);
     }
   };
-  
-  // Calculate the index of the first and last item on the current page
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentShipments = shipmentsData.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Change page
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  // Open side menu and set selected shipment
   const handleViewClick = (shipment) => {
     setSelectedShipment(shipment);
     setIsSideMenuOpen(true);
-    
-    
   };
-  const handleEditClick = (shipment)=>{
-    console.log(shipment);
+
+  const handleEditClick = (shipment) => {
+    setNewShipment(shipment);
     setIsFormVisible(true);
-    setNewShipment(shipment)
-  }
-  // Close side menu
-  const closeSideMenu = () => {
-    setIsSideMenuOpen(false);
   };
+
+  const closeSideMenu = () => setIsSideMenuOpen(false);
+
+  // Coordinates for Al Hoceima, Tangier, and Madrid
+  const alHoceima = { lat: 35.25, lng: -5.25 }; // Example coordinates in Latitude and Longitude
+  const tangier = { lat: 35.7741, lng: -5.8015 };
+  const madrid = { lat: 40.4168, lng: -3.7038 };
 
   return (
-    <div>
-      {/* Breadcrumb */}
-      <div className="breadcrumb">
-        <span>Home</span> &gt; <span>Shipments</span>
-        <button className="btn-add-shipment" onClick={toggleForm}>+ Add Shipment</button>
-
+    <div className="p-8 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Shipments Dashboard</h1>
+        <button
+          onClick={toggleForm}
+          className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-2 rounded-lg shadow-md hover:from-blue-600 hover:to-indigo-700 focus:ring-4 focus:ring-indigo-300"
+        >
+          + Add Shipment
+        </button>
       </div>
 
-      {/* Shipments Table */}
-      <h2>Shipment Information</h2>
-      <table className="shipment-table">
-        <thead>
-          <tr>
-            <th>Shipment ID</th>
-            <th>Sender</th>
-            <th>Receiver</th>
-            <th>Status</th>
-            <th>Shipping Date</th>
-            <th>Expected Delivery</th>
-            <th>Last Updated</th>
-            <th>Location</th>
-            <th>Tracking Number</th>
-            <th>Weight</th>
-            <th>Dimensions</th>
-            <th>Shipping Cost</th>
-            <th>Payment Status</th>
-            <th>Delivery Type</th>
-            <th>Contact</th>
-            <th>Delivery Attempts</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentShipments.map((shipment) => (
-            <tr key={shipment.id}>
-              <td>{shipment.id}</td>
-              <td>{shipment.sender}</td>
-              <td>{shipment.receiver}</td>
-              <td>{shipment.status}</td>
-              <td>{shipment.shippingDate}</td>
-              <td>{shipment.expectedDelivery}</td>
-              <td>{shipment.lastUpdated}</td>
-              <td>{shipment.location}</td>
-              <td>{shipment.trackingNumber}</td>
-              <td>{shipment.weight}</td>
-              <td>{shipment.dimensions}</td>
-              <td>{shipment.shippingCost}</td>
-              <td>{shipment.paymentStatus}</td>
-              <td>{shipment.deliveryType}</td>
-              <td>{shipment.contact}</td>
-              <td>{shipment.deliveryAttempts}</td>
-              <td>
-                <button className="btn-action" onClick={() => handleViewClick(shipment)}>View</button>
-                <button className="btn-action" onClick={() => handleEditClick(shipment)}>Edit</button>
-              </td>
+      {/* Form */}
+      {isFormVisible && (
+        <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Add/Edit Shipment</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-2 gap-4">
+              <input
+                type="text"
+                name="sender"
+                value={newShipment.sender}
+                onChange={handleChange}
+                placeholder="Sender"
+                className="p-3 border rounded-lg"
+                required
+              />
+              <input
+                type="text"
+                name="receiver"
+                value={newShipment.receiver}
+                onChange={handleChange}
+                placeholder="Receiver"
+                className="p-3 border rounded-lg"
+                required
+              />
+              <select
+                name="status"
+                value={newShipment.status}
+                onChange={handleChange}
+                className="p-3 border rounded-lg"
+                required
+              >
+                <option value="">Select Status</option>
+                <option value="Pending">Pending</option>
+                <option value="In Transit">In Transit</option>
+                <option value="Delivered">Delivered</option>
+              </select>
+              <input
+                type="date"
+                name="shippingDate"
+                value={newShipment.shippingDate}
+                onChange={handleChange}
+                className="p-3 border rounded-lg"
+                required
+              />
+              <input
+                type="date"
+                name="expectedDelivery"
+                value={newShipment.expectedDelivery}
+                onChange={handleChange}
+                className="p-3 border rounded-lg"
+                required
+              />
+              <input
+                type="text"
+                name="location"
+                value={newShipment.location}
+                onChange={handleChange}
+                placeholder="Location"
+                className="p-3 border rounded-lg"
+                required
+              />
+              <input
+                type="text"
+                name="trackingNumber"
+                value={newShipment.trackingNumber}
+                onChange={handleChange}
+                placeholder="Tracking Number"
+                className="p-3 border rounded-lg"
+                required
+              />
+              <input
+                type="number"
+                name="weight"
+                value={newShipment.weight}
+                onChange={handleChange}
+                placeholder="Weight (kg)"
+                className="p-3 border rounded-lg"
+                required
+              />
+            </div>
+            <div className="flex justify-end mt-4">
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-blue-700"
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="overflow-hidden bg-white shadow-lg rounded-xl mb-8">
+        <table className="table-auto w-full text-sm text-left text-gray-600">
+          <thead className="bg-indigo-50">
+            <tr className="text-gray-700">
+              <th className="px-6 py-4">ID</th>
+              <th className="px-6 py-4">Sender</th>
+              <th className="px-6 py-4">Receiver</th>
+              <th className="px-6 py-4">Status</th>
+              <th className="px-6 py-4">Shipping Date</th>
+              <th className="px-6 py-4">Expected Delivery</th>
+              <th className="px-6 py-4">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {currentShipments.map((shipment) => (
+              <tr
+                key={shipment.id}
+                className="border-b hover:bg-indigo-100 transition duration-300"
+              >
+                <td className="px-6 py-4">{shipment.id}</td>
+                <td className="px-6 py-4">{shipment.sender}</td>
+                <td className="px-6 py-4">{shipment.receiver}</td>
+                <td className="px-6 py-4">{shipment.status}</td>
+                <td className="px-6 py-4">{shipment.shippingDate}</td>
+                <td className="px-6 py-4">{shipment.expectedDelivery}</td>
+                <td className="px-6 py-4 flex space-x-2">
+                  <button
+                    onClick={() => handleViewClick(shipment)}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    <FaEye size={18} />
+                  </button>
+                  <button
+                    onClick={() => handleEditClick(shipment)}
+                    className="text-yellow-600 hover:text-yellow-800"
+                  >
+                    <FaEdit size={18} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Pagination */}
-      <div className="pagination">
-        <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-          Previous
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg"
+        >
+          Prev
         </button>
-        {[...Array(Math.ceil(shipmentsData.length / itemsPerPage))].map((_, index) => (
-          <button key={index} onClick={() => paginate(index + 1)} className={currentPage === index + 1 ? 'active' : ''}>
-            {index + 1}
-          </button>
-        ))}
-        <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(shipmentsData.length / itemsPerPage)}>
+        <button
+          onClick={() => paginate(currentPage + 1)}
+          disabled={currentPage === Math.ceil(shipmentsData.length / itemsPerPage)}
+          className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg ml-2"
+        >
           Next
         </button>
       </div>
 
-      {/* Side Menu - Shipment Details */}
-      {isSideMenuOpen && selectedShipment && (
-        <div className="side-menu">
-          <div className="side-menu-content">
-            <button className="close-btn" onClick={closeSideMenu}>X</button>
-            <h3>Shipment Details</h3>
-            <div className="shipment-info">
-              <p><strong>Sender:</strong> {selectedShipment.sender}</p>
-              <p><strong>Receiver:</strong> {selectedShipment.receiver}</p>
-              <p><strong>Status:</strong> {selectedShipment.status}</p>
-              <p><strong>Location:</strong> {selectedShipment.location}</p>
-              <p><strong>Tracking Number:</strong> {selectedShipment.trackingNumber}</p>
-              {/* Add more shipment info here */}
-            </div>
-
-            {/* Map - Add a map here (using react-leaflet or another library) */}
-            <div className="map-container">
-            <MapContainer center={[35.774, -5.813]} zoom={13} style={{ height: '100%', width: '100%' }}>
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                <Marker position={[35.774, -5.813]}>
-                    <Popup>Shipment Location - Tangier</Popup>
-                </Marker>
-                </MapContainer>
-
-            </div>
+      {/* Side Menu with Map and Shipment Details */}
+      {isSideMenuOpen && (
+        <div className="fixed top-0 right-0 w-1/3 h-full bg-white shadow-lg overflow-auto z-50">
+          <div className="flex justify-between items-center p-4 border-b">
+            <h2 className="text-lg font-semibold">Shipment Details</h2>
+            <button
+              onClick={closeSideMenu}
+              className="text-red-600 hover:text-red-800"
+            >
+              Close
+            </button>
           </div>
+
+          <div className="p-4">
+            {selectedShipment ? (
+              <div>
+                <p><strong>Sender:</strong> {selectedShipment.sender}</p>
+                <p><strong>Receiver:</strong> {selectedShipment.receiver}</p>
+                <p><strong>Status:</strong> {selectedShipment.status}</p>
+                <p><strong>Shipping Date:</strong> {selectedShipment.shippingDate}</p>
+                <p><strong>Expected Delivery:</strong> {selectedShipment.expectedDelivery}</p>
+                <p><strong>Location:</strong> {selectedShipment.location}</p>
+                <p><strong>Tracking Number:</strong> {selectedShipment.trackingNumber}</p>
+              </div>
+            ) : (
+              <p>No shipment selected</p>
+            )}
+          </div>
+
+          {/* Map */}
+          <div className="w-full h-64 relative">
+            <MapContainer center={alHoceima} zoom={6} style={{ height: '100%', width: '100%' }}>
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {/* Markers */}
+              <Marker position={alHoceima}>
+                <Popup>Al Hoceima</Popup>
+              </Marker>
+              <Marker position={tangier}>
+                <Popup>Tangier</Popup>
+              </Marker>
+              <Marker position={madrid}>
+                <Popup>Madrid</Popup>
+              </Marker>
+              {/* Polyline between locations */}
+              <Polyline positions={[alHoceima, tangier, madrid]} color="blue" />
+            </MapContainer>
+          </div>
+      
         </div>
       )}
-      {/* form modal  */}
-      {isFormVisible && (
-            
-            <div className="overlay">
-            <div className="modal-content">
-              <h3>Add New Shipment</h3>
-              <form onSubmit={handleSubmit} className="form-grid">
-        <div className="form-group">
-          <label>Sender:</label>
-          <input
-            type="text"
-            name="sender"
-            value={newShipment.sender}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Receiver:</label>
-          <input
-            type="text"
-            name="receiver"
-            value={newShipment.receiver}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Status:</label>
-          <input
-            type="text"
-            name="status"
-            value={newShipment.status}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Shipping Date:</label>
-          <input
-            type="date"
-            name="shippingDate"
-            value={newShipment.shippingDate}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Expected Delivery:</label>
-          <input
-            type="date"
-            name="expectedDelivery"
-            value={newShipment.expectedDelivery}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Location:</label>
-          <input
-            type="text"
-            name="location"
-            value={newShipment.location}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Tracking Number:</label>
-          <input
-            type="text"
-            name="trackingNumber"
-            value={newShipment.trackingNumber}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Weight (kg):</label>
-          <input
-            type="number"
-            name="weight"
-            value={newShipment.weight}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Dimensions:</label>
-          <input
-            type="text"
-            name="dimensions"
-            value={newShipment.dimensions}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Shipping Cost:</label>
-          <input
-            type="number"
-            name="shippingCost"
-            value={newShipment.shippingCost}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Payment Status:</label>
-          <input
-            type="text"
-            name="paymentStatus"
-            value={newShipment.paymentStatus}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Delivery Type:</label>
-          <input
-            type="text"
-            name="deliveryType"
-            value={newShipment.deliveryType}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Contact:</label>
-          <input
-            type="tel"
-            name="contact"
-            value={newShipment.contact}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Delivery Attempts:</label>
-          <input
-            type="number"
-            name="deliveryAttempts"
-            value={newShipment.deliveryAttempts}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="btn-submit">
-          <button type="submit">Submit Shipment</button>
-        </div>
-      </form>
-              <button className="btn-close" onClick={toggleForm}>Close</button>
-            </div>
-          </div>
-          )}
-
-      {/* /**** end of form modal  */ }
     </div>
   );
 };
