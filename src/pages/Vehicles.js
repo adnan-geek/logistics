@@ -1,42 +1,9 @@
-import React, { useState } from 'react';
-
-// Sample vehicle data (replace with actual data or API)
-const vehicleData = [
-  {
-    id: 1,
-    name: 'Vehicle 12',
-    plateNumber: 'ABC123',
-    nextOilChange: '2024-12-15',
-    maxVolume: '1000L',
-    status: 'Active',
-    image: 'https://www.configurator.iveco.com/eplr/epl/image/13809/',
-    location: '40.712776, -74.005974', // Location (latitude, longitude) for tracking
-  },
-  {
-    id: 2,
-    name: 'Vehicle 13',
-    plateNumber: 'XYZ456',
-    nextOilChange: '2025-03-10',
-    maxVolume: '1200L',
-    status: 'Inactive',
-    image: 'https://www.configurator.iveco.com/eplr/epl/image/13809/',
-    location: '34.052235, -118.243683',
-  },
-  {
-    id: 3,
-    name: 'Vehicle 18',
-    plateNumber: 'LMN789',
-    nextOilChange: '2024-11-05',
-    maxVolume: '950L',
-    status: 'Under Maintenance',
-    image: 'https://www.configurator.iveco.com/eplr/epl/image/13809/',
-    location: '51.507351, -0.127758',
-  },
-];
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const Vehicles = () => {
-  const [vehicles, setVehicles] = useState(vehicleData);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [vehicles, setVehicles] = useState([]); // Empty array to hold vehicle data
+  const [selectedVehicle, setSelectedVehicle] = useState(null); // Used for editing or adding a vehicle
   const [newVehicle, setNewVehicle] = useState({
     name: '',
     plateNumber: '',
@@ -44,48 +11,109 @@ const Vehicles = () => {
     maxVolume: '',
     status: 'Active',
     image: '',
+    location: '',
   });
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(false); // Loading state
+  const [error, setError] = useState(null); // Error state
 
-  // Handle Edit Vehicle Status
-  const handleEditStatus = (vehicleId, newStatus) => {
-    const updatedVehicles = vehicles.map((vehicle) =>
-      vehicle.id === vehicleId ? { ...vehicle, status: newStatus } : vehicle
-    );
-    setVehicles(updatedVehicles);
-    setSelectedVehicle(null); // Close the edit form after saving
+  // Fetch vehicle data from the API
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get('http://localhost/adyologistics/src/backend/scripts/vehicles.php') // Your API endpoint for fetching vehicles
+      .then((response) => {
+        setVehicles(response.data); // Set fetched vehicles data
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError('Failed to fetch vehicles'); // Set error message
+        setLoading(false);
+      });
+  }, []); // Empty dependency array means it runs only on component mount
+
+
+  // hanlde image change 
+  const handleImageChange = (e) => {
+    setNewVehicle({ ...newVehicle, image: e.target.files[0] });
   };
 
-  // Handle Add Vehicle
+  // Handle Add Vehicle (POST request)
   const handleAddVehicle = () => {
-    const newId = vehicles.length + 1;
-    const updatedVehicles = [
-      ...vehicles,
-      {
-        id: newId,
-        name: newVehicle.name,
-        plateNumber: newVehicle.plateNumber,
-        nextOilChange: newVehicle.nextOilChange,
-        maxVolume: newVehicle.maxVolume,
-        status: newVehicle.status,
-        image: newVehicle.image,
-        location: '',
-      },
-    ];
-    setVehicles(updatedVehicles);
-    setNewVehicle({
-      name: '',
-      plateNumber: '',
-      nextOilChange: '',
-      maxVolume: '',
-      status: 'Active',
-      image: '',
-    });
+    const formData = new FormData();
+    formData.append('vehicle_name', newVehicle.name);
+    formData.append('plate_number', newVehicle.plateNumber);
+    formData.append('max_volume', newVehicle.maxVolume);
+    formData.append('status', newVehicle.status);
+    formData.append('location', newVehicle.location);
+
+    // Append the image file if it exists
+    if (newVehicle.image) {
+      formData.append('vehicle_image', newVehicle.image);
+    }
+
+    // Send data to the server using axios
+    axios
+      .post('http://localhost/adyologistics/src/backend/scripts/vehicles.php', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Set the content type to handle file uploads
+        },
+      })
+      .then((response) => {
+        // Add the newly created vehicle to the list
+        setVehicles([...vehicles, response.data]);
+
+        // Reset the form
+        setNewVehicle({
+          name: '',
+          plateNumber: '',
+          maxVolume: '',
+          status: 'Active',
+          image: null,
+          location: '',
+        });
+      })
+      .catch((error) => {
+        setError('Failed to add vehicle');
+      });
+  };
+
+  // Handle Edit Vehicle Status (PUT request)
+  const handleEditStatus = (vehicleId, newStatus) => {
+    const updatedVehicleData = { id: vehicleId, status: newStatus };
+
+    axios
+      .put('http://localhost/adyologistics/src/backend/scripts/vehicles.php', updatedVehicleData)
+      .then((response) => {
+        const updatedVehicles = vehicles.map((vehicle) =>
+          vehicle.id === vehicleId ? { ...vehicle, status: newStatus } : vehicle
+        );
+        setVehicles(updatedVehicles);
+        setSelectedVehicle(null); // Close the edit form after saving
+      })
+      .catch((error) => {
+        setError('Failed to update vehicle status');
+      });
+  };
+
+  // Handle Delete Vehicle (DELETE request)
+  const handleDeleteVehicle = (vehicleId) => {
+    axios
+      .delete('http://localhost/adyologistics/src/backend/scripts/vehicles.php', {
+        data: { id: vehicleId },
+      })
+      .then((response) => {
+        const updatedVehicles = vehicles.filter((vehicle) => vehicle.id !== vehicleId);
+        setVehicles(updatedVehicles);
+      })
+      .catch((error) => {
+        setError('Failed to delete vehicle');
+      });
   };
 
   // Handle Filter by Vehicle Name
   const filteredVehicles = vehicles.filter((vehicle) =>
-    vehicle.name.toLowerCase().includes(searchQuery.toLowerCase())
+    vehicle.vehicle_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Handle Tracking Map (You can integrate Google Maps API or any other map service)
@@ -112,142 +140,199 @@ const Vehicles = () => {
         />
       </div>
 
-      {/* Vehicle Table */}
-      <div className="vehicle-table mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold text-gray-800">Vehicle List</h2>
-          <button
-            onClick={() => setSelectedVehicle({ id: 'new', name: '', plateNumber: '', nextOilChange: '', maxVolume: '', status: 'Active', image: '', location: '' })}
-            className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-600"
-          >
-            Add New Vehicle
-          </button>
+      {/* Loading Indicator */}
+      {loading && (
+        <div className="text-center py-6">
+          <p>Loading vehicles...</p>
         </div>
+      )}
 
-        <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Vehicle Image</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Vehicle Name</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Plate Number</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Next Oil Change</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Max Volume</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Status</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Location</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredVehicles.map((vehicle) => (
-              <tr key={vehicle.id} className="border-b hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <img src={vehicle.image} alt={vehicle.name} className="w-16 h-16 object-cover rounded-full" />
-                </td>
-                <td className="px-6 py-4">{vehicle.name}</td>
-                <td className="px-6 py-4">{vehicle.plateNumber}</td>
-                <td className="px-6 py-4">{vehicle.nextOilChange}</td>
-                <td className="px-6 py-4">{vehicle.maxVolume}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-3 py-1 rounded-full text-sm ${vehicle.status === 'Active' ? 'bg-green-500 text-white' : vehicle.status === 'Inactive' ? 'bg-gray-500 text-white' : 'bg-yellow-500 text-white'}`}>
-                    {vehicle.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <button
-                    onClick={() => handleTrackingClick(vehicle.location)}
-                    className="bg-blue-500 text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-600"
-                  >
-                    Track Location
-                  </button>
-                </td>
-                <td className="px-6 py-4">
-                  <button
-                    onClick={() => setSelectedVehicle(vehicle)}
-                    className="bg-blue-500 text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-600"
-                  >
-                    Edit Status
-                  </button>
-                </td>
+      {/* Error Message */}
+      {error && (
+        <div className="text-center py-6 text-red-500">
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* Vehicle Table */}
+      {!loading && !error && (
+        <div className="vehicle-table mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold text-gray-800">Vehicle List</h2>
+            <button
+              onClick={() =>
+                setSelectedVehicle({
+                  id: 'new',
+                  name: '',
+                  plateNumber: '',
+                  nextOilChange: '',
+                  maxVolume: '',
+                  status: 'Active',
+                  image: '',
+                  location: '',
+                })
+              }
+              className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-600"
+            >
+              Add New Vehicle
+            </button>
+          </div>
+
+          <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Vehicle Image</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Vehicle Name</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Plate Number</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Next Oil Change</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Max Volume</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Status</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Location</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filteredVehicles.map((vehicle) => (
+                <tr key={vehicle.id} className="border-b hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <img
+                      src={vehicle.vehicle_image}
+                      alt={vehicle.name}
+                      className="w-16 h-16 object-cover rounded-full"
+                    />
+                  </td>
+                  <td className="px-6 py-4">{vehicle.vehicle_name}</td>
+                  <td className="px-6 py-4">{vehicle.plate_number}</td>
+                  <td className="px-6 py-4">{vehicle.next_oil_change}</td>
+                  <td className="px-6 py-4">{vehicle.max_volume}</td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        vehicle.status === 'Active'
+                          ? 'bg-green-500 text-white'
+                          : vehicle.status === 'Inactive'
+                          ? 'bg-gray-500 text-white'
+                          : 'bg-yellow-500 text-white'
+                      }`}
+                    >
+                      {vehicle.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => handleTrackingClick(vehicle.location)}
+                      className="bg-blue-500 text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-600"
+                    >
+                      Track Location
+                    </button>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => setSelectedVehicle(vehicle)}
+                      className="bg-blue-500 text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-600"
+                    >
+                      Edit Status
+                    </button>
+                    <button
+                      onClick={() => handleDeleteVehicle(vehicle.id)}
+                      className="bg-red-500 text-white py-2 px-4 rounded-md shadow-md hover:bg-red-600 ml-2"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-      {/* Edit Vehicle Form */}
+      {/* Add/Edit Vehicle Modal */}
       {selectedVehicle && (
-        <div className="edit-vehicle-form bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
-          <h2 className="text-xl font-semibold mb-6">
-            {selectedVehicle.id === 'new' ? 'Add New Vehicle' : `Edit Status of ${selectedVehicle.name}`}
-          </h2>
-          <div className="space-y-4">
-            <div>
-              <label className="text-lg font-medium">Vehicle Name</label>
-              <input
-                type="text"
-                value={selectedVehicle.name}
-                onChange={(e) => setSelectedVehicle({ ...selectedVehicle, name: e.target.value })}
-                className="w-full p-3 border border-gray-300 rounded-lg"
-              />
-            </div>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg w-96">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+              {selectedVehicle.id === 'new' ? 'Add New Vehicle' : 'Edit Vehicle Status'}
+            </h2>
+            {selectedVehicle.id === 'new' ? (
+              <>
+                <label className="block text-sm font-medium text-gray-600">Vehicle Name</label>
+                <input
+                  type="text"
+                  value={newVehicle.name}
+                  onChange={(e) => setNewVehicle({ ...newVehicle, name: e.target.value })}
+                  className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                  placeholder="Enter Vehicle Name"
+                />
 
-            <div>
-              <label className="text-lg font-medium">Plate Number</label>
-              <input
-                type="text"
-                value={selectedVehicle.plateNumber}
-                disabled
-                className="w-full p-3 border border-gray-300 bg-gray-200 rounded-lg"
-              />
-            </div>
+                <label className="block text-sm font-medium text-gray-600">Plate Number</label>
+                <input
+                  type="text"
+                  value={newVehicle.plateNumber}
+                  onChange={(e) => setNewVehicle({ ...newVehicle, plateNumber: e.target.value })}
+                  className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                  placeholder="Enter Plate Number"
+                />
 
-            <div>
-              <label className="text-lg font-medium">Next Oil Change</label>
-              <input
-                type="date"
-                value={selectedVehicle.nextOilChange}
-                onChange={(e) => setSelectedVehicle({ ...selectedVehicle, nextOilChange: e.target.value })}
-                className="w-full p-3 border border-gray-300 rounded-lg"
-              />
-            </div>
+                <label className="block text-sm font-medium text-gray-600">Max Volume</label>
+                <input
+                  type="text"
+                  value={newVehicle.maxVolume}
+                  onChange={(e) => setNewVehicle({ ...newVehicle, maxVolume: e.target.value })}
+                  className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                  placeholder="Enter Max Volume"
+                />
+                
+                            <label>Vehicle Image</label>
+                            <input
+                              type="file"
+                              onChange={handleImageChange}
+                              accept="image/*"
+                            />
 
-            <div>
-              <label className="text-lg font-medium">Max Volume</label>
-              <input
-                type="text"
-                value={selectedVehicle.maxVolume}
-                onChange={(e) => setSelectedVehicle({ ...selectedVehicle, maxVolume: e.target.value })}
-                className="w-full p-3 border border-gray-300 rounded-lg"
-              />
-            </div>
+                <label className="block text-sm font-medium text-gray-600">Location</label>
+                <input
+                  type="text"
+                  value={newVehicle.location}
+                  onChange={(e) => setNewVehicle({ ...newVehicle, location: e.target.value })}
+                  className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                  placeholder="Enter Vehicle Location"
+                />
 
-            {/* Status */}
-            {selectedVehicle.id !== 'new' && (
-              <div>
-                <label className="text-lg font-medium">Update Status</label>
+                <button
+                  onClick={handleAddVehicle}
+                  className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                >
+                  Add Vehicle
+                </button>
+              </>
+            ) : (
+              <>
+                <label className="block text-sm font-medium text-gray-600">Vehicle Status</label>
                 <select
-                  value={selectedVehicle.status}
-                  onChange={(e) => handleEditStatus(selectedVehicle.id, e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg"
+                  value={newVehicle.status}
+                  onChange={(e) => setNewVehicle({ ...newVehicle, status: e.target.value })}
+                  className="w-full p-2 border border-gray-300 rounded-md mb-4"
                 >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
-                  <option value="Under Maintenance">Under Maintenance</option>
+                  <option value="Maintenance">Maintenance</option>
                 </select>
-              </div>
-            )}
 
-            <div className="mt-4 text-center">
-              {selectedVehicle.id === 'new' ? (
-                <button onClick={handleAddVehicle} className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-600">
-                  Add Vehicle
+                <button
+                  onClick={() => handleEditStatus(selectedVehicle.id, newVehicle.status)}
+                  className="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                >
+                  Save Status
                 </button>
-              ) : (
-                <button onClick={() => setSelectedVehicle(null)} className="bg-gray-500 text-white py-2 px-4 rounded-lg">
-                  Close
-                </button>
-              )}
-            </div>
+              </>
+            )}
+            <button
+              onClick={() => setSelectedVehicle(null)}
+              className="w-full py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 mt-4"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}
