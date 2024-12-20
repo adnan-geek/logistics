@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { FaEye, FaEdit } from 'react-icons/fa'; // FontAwesome icons for View and Edit
+
+import { FaEye, FaEdit , FaTrash } from 'react-icons/fa'; // FontAwesome icons for View and Edit
 import axios from 'axios';
+
+
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 const Shipments = () => {
+
   const [shipmentsData, setShipmentsData] = useState([]);
+  const [operationMode, setOperationMode] = useState('add'); 
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedShipment, setSelectedShipment] = useState(null);
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
@@ -28,18 +34,23 @@ const Shipments = () => {
     deliveryAttempts: '',
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('http://localhost/adyologistics/src/backend/scripts/shipments.php');
-        const data = await response.json();
-        setShipmentsData(data);
-      } catch (error) {
-        console.error('Error fetching shipments data:', error);
-      }
-    };
 
+   /********************************************************* */
+
+   const fetchData = async () => {
+    try {
+      const response = await fetch('http://localhost/adyologistics/src/backend/scripts/shipments.php');
+      const data = await response.json();
+      setShipmentsData(data);
+    } catch (error) {
+      console.error('Error fetching shipments data:', error);
+    }
+  };
+   /*********************************************************** */
+  useEffect(() => {
+   
     fetchData();
+    
   }, []);
 
   const itemsPerPage = 10;
@@ -56,13 +67,63 @@ const Shipments = () => {
     setNewShipment((prevState) => ({ ...prevState, [name]: value }));
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const response = await axios.post('http://localhost/adyologistics/src/backend/scripts/shipments.php', newShipment, {
+  //       headers: { 'Content-Type': 'application/json' },
+  //     });
+
+  //     if (response.status === 200) {
+  //       setNewShipment({
+  //         sender: '',
+  //         receiver: '',
+  //         status: '',
+  //         shippingDate: '',
+  //         expectedDelivery: '',
+  //         location: '',
+  //         weight: '',
+  //         dimensions: '',
+  //         shippingCost: '',
+  //         paymentStatus: '',
+  //         deliveryType: '',
+  //         contact: '',
+  //         deliveryAttempts: '',
+  //       });
+  //       // setShipmentsData([...shipmentsData, newShipment]); // Add new shipment to local state
+  //       fetchData();
+  //       setIsFormVisible(false); // Hide the form after submission
+  //     } else {
+  //       console.log('Failed to add shipment:', response.data);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error occurred while adding shipment:', error);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
-      const response = await axios.post('http://localhost/adyologistics/src/backend/scripts/shipments.php', newShipment, {
+      // Prepare the data
+      const requestData = newShipment;
+     
+      console.log(requestData);
+      
+      // Determine HTTP method and endpoint
+      const method = operationMode === 'add'   ? 'POST' : operationMode === 'edit'    ? 'PUT'  : 'DELETE'; 
+      console.log(method);
+      
+      const endpoint = `http://localhost/adyologistics/src/backend/scripts/shipments.php`;
+  
+      // Make the request
+      const response = await axios({
+        method: method,
+        url: endpoint,
+        data: requestData,
         headers: { 'Content-Type': 'application/json' },
       });
-
+  
       if (response.status === 200) {
         setNewShipment({
           sender: '',
@@ -71,7 +132,6 @@ const Shipments = () => {
           shippingDate: '',
           expectedDelivery: '',
           location: '',
-          trackingNumber: '',
           weight: '',
           dimensions: '',
           shippingCost: '',
@@ -80,16 +140,19 @@ const Shipments = () => {
           contact: '',
           deliveryAttempts: '',
         });
-        setShipmentsData([...shipmentsData, newShipment]); // Add new shipment to local state
+        console.log(response.data);
+        
+        fetchData(); // Refresh the shipment list
         setIsFormVisible(false); // Hide the form after submission
       } else {
-        console.log('Failed to add shipment:', response.data);
+        console.error('Failed to submit shipment:', response.data);
       }
     } catch (error) {
-      console.error('Error occurred while adding shipment:', error);
+      console.error('Error occurred while submitting shipment:', error);
     }
   };
-
+  
+  // handling click events :  add , delete , edit 
   const handleViewClick = (shipment) => {
     setSelectedShipment(shipment);
     setIsSideMenuOpen(true);
@@ -98,7 +161,14 @@ const Shipments = () => {
   const handleEditClick = (shipment) => {
     setNewShipment(shipment);
     setIsFormVisible(true);
+    setOperationMode("edit");
   };
+const handleDeleteClick = (shipment)=>{
+  setNewShipment(shipment);
+  setOperationMode("delete");
+  console.log("tesest");
+  
+}
 
   const closeSideMenu = () => setIsSideMenuOpen(false);
 
@@ -166,30 +236,31 @@ const Shipments = () => {
               />
               <input
                 type="date"
-                name="expectedDelivery"
+                name="expectedDelivery" 
                 value={newShipment.expectedDelivery}
                 onChange={handleChange}
                 className="p-3 border rounded-lg"
                 required
               />
-              <input
-                type="text"
-                name="location"
-                value={newShipment.location}
-                onChange={handleChange}
-                placeholder="Location"
-                className="p-3 border rounded-lg"
-                required
-              />
-              <input
-                type="text"
-                name="trackingNumber"
-                value={newShipment.trackingNumber}
-                onChange={handleChange}
-                placeholder="Tracking Number"
-                className="p-3 border rounded-lg"
-                required
-              />
+              <select
+                  name="location"
+                  value={newShipment.location}
+                  onChange={handleChange}
+                  className="p-3 border rounded-lg"
+                  required
+                >
+                  <option value="" disabled>Select Location</option>
+                  <option value="tangier">Tangier</option>
+                  <option value="alhouceima">Alhouceima</option>
+                  <option value="tetouan">Tetouan</option>
+                  <option value="madrid">Madrid</option>
+                  <option value="granada">Granada</option>
+                  <option value="algeciras">Algeciras</option>
+                  <option value="targuist">Targuist</option>
+                  <option value="nador">Nador</option>
+                  <option value="parla">Parla</option>
+                </select>
+            
               <input
                 type="number"
                 name="weight"
@@ -220,8 +291,9 @@ const Shipments = () => {
               <th className="px-6 py-4">ID</th>
               <th className="px-6 py-4">Sender</th>
               <th className="px-6 py-4">Receiver</th>
+              <th className="px-6 py-4">tracking Number</th>
               <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Shipping Date</th>
+              <th className="px-6 py-4">Destination</th>
               <th className="px-6 py-4">Expected Delivery</th>
               <th className="px-6 py-4">Actions</th>
             </tr>
@@ -234,23 +306,33 @@ const Shipments = () => {
               >
                 <td className="px-6 py-4">{shipment.id}</td>
                 <td className="px-6 py-4">{shipment.sender}</td>
+                <td className="px-6 py-4">{shipment.trackingNumber}</td>
                 <td className="px-6 py-4">{shipment.receiver}</td>
                 <td className="px-6 py-4">{shipment.status}</td>
                 <td className="px-6 py-4">{shipment.shippingDate}</td>
-                <td className="px-6 py-4">{shipment.expectedDelivery}</td>
+                <td className="px-6 py-4">{shipment.location}</td>
                 <td className="px-6 py-4 flex space-x-2">
                   <button
                     onClick={() => handleViewClick(shipment)}
                     className="text-blue-600 hover:text-blue-800"
                   >
-                    <FaEye size={18} />
+                    <FaEye style={{ height: '22px', width: '22px' }} />
                   </button>
                   <button
                     onClick={() => handleEditClick(shipment)}
                     className="text-yellow-600 hover:text-yellow-800"
                   >
-                    <FaEdit size={18} />
+                    <FaEdit style={{ height: '22px', width: '22px' }} />
                   </button>
+
+                  <button onClick={() => handleDeleteClick(shipment)}
+                  
+                  className="text-red-600 hover:text-red-800"
+                >
+                  <FaTrash style={{ height: '22px', width: '22px' }} className="h-6 w-6" />
+                </button>
+
+
                 </td>
               </tr>
             ))}
