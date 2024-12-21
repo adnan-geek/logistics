@@ -52,7 +52,15 @@ const Aside = () => {
               <span className="font-medium">Vehicles</span>
             </Link>
           </li>
-
+          <li>
+            <Link
+              to="/main/bills"
+              className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition"
+            >
+              <UsersIcon className="h-6 w-6 text-gray-400" />
+              <span className="font-medium">Bills</span>
+            </Link>
+          </li>
           {/* Users */}
           <li>
             <Link

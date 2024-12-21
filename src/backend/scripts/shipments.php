@@ -54,9 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 
     $data['trackingNumber'] = generateTrackingNumber($conn);
-    $query = "INSERT INTO shipments (sender, receiver, status, shippingDate, expectedDelivery, location, trackingNumber, weight, dimensions, shippingCost, paymentStatus, deliveryType, contact, deliveryAttempts) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $query = "INSERT INTO shipments (sender, receiver, status, shippingDate, expectedDelivery, location, trackingNumber, weight, dimensions, shippingCost, paymentStatus, deliveryType, contact, deliveryAttempts, shipment_total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("ssssssssssssss", $data['sender'], $data['receiver'], $data['status'], $data['shippingDate'], $data['expectedDelivery'], $data['location'], $data['trackingNumber'], $data['weight'], $data['dimensions'], $data['shippingCost'], $data['paymentStatus'], $data['deliveryType'], $data['contact'], $data['deliveryAttempts']);
+    $stmt->bind_param("ssssssssssssssi", $data['sender'], $data['receiver'], $data['status'], $data['shippingDate'], $data['expectedDelivery'], $data['location'], $data['trackingNumber'], $data['weight'], $data['dimensions'], $data['shippingCost'], $data['paymentStatus'], $data['deliveryType'], $data['contact'], $data['deliveryAttempts'],$data['billTotalPrice']);
     if ($stmt->execute()) {
         echo json_encode(["success" => true, "message" => "Shipment added successfully."]);
     } else {

@@ -6,6 +6,7 @@ import Settings from '../pages/Settings';
 import Users from '../pages/Users';
 import Vehicles from '../pages/Vehicles';
 import Shipments from '../pages/Shipments';
+import Bills from '../pages/Bills';
 import '../styles/main.css';
 
 const Main = () => {
@@ -17,6 +18,7 @@ const Main = () => {
           <Route path="analytics" element={<Analytics />} />
           <Route path="shipments" element={<Shipments />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="bills" element={<Bills />} />
           <Route path="users" element={<Users />} />
           <Route path="vehicles" element={<Vehicles />} />
           <Route path="/" element={<Navigate replace to="analytics" />} />

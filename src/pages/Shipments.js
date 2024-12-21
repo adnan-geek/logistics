@@ -12,6 +12,8 @@ import 'leaflet/dist/leaflet.css';
 const Shipments = () => {
 
   const [shipmentsData, setShipmentsData] = useState([]);
+  const [weight, setWeight] = useState('');
+  const [totalPrice, setTotalPrice] = useState(null);
   const [operationMode, setOperationMode] = useState('add'); 
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedShipment, setSelectedShipment] = useState(null);
@@ -67,53 +69,36 @@ const Shipments = () => {
     setNewShipment((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await axios.post('http://localhost/adyologistics/src/backend/scripts/shipments.php', newShipment, {
-  //       headers: { 'Content-Type': 'application/json' },
-  //     });
+/***** ******************************* calculate the total price *****************************************/
 
-  //     if (response.status === 200) {
-  //       setNewShipment({
-  //         sender: '',
-  //         receiver: '',
-  //         status: '',
-  //         shippingDate: '',
-  //         expectedDelivery: '',
-  //         location: '',
-  //         weight: '',
-  //         dimensions: '',
-  //         shippingCost: '',
-  //         paymentStatus: '',
-  //         deliveryType: '',
-  //         contact: '',
-  //         deliveryAttempts: '',
-  //       });
-  //       // setShipmentsData([...shipmentsData, newShipment]); // Add new shipment to local state
-  //       fetchData();
-  //       setIsFormVisible(false); // Hide the form after submission
-  //     } else {
-  //       console.log('Failed to add shipment:', response.data);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error occurred while adding shipment:', error);
-  //   }
-  // };
+
+const calculateTotalPrice = (weight) => {
+  const pricePerKg = 20; // Price per kilogram in MAD
+  console.log(weight);
+  
+  parseInt(weight);
+  if (isNaN(weight) || weight <= 0) {
+    return 'Invalid weight'; // Handle edge cases
+  }
+  return weight * pricePerKg;
+};
+
+
+/***********************************************************************/
 
   const handleSubmit = async (e) => {
     e.preventDefault();
   
     try {
       // Prepare the data
+      newShipment.billTotalPrice = calculateTotalPrice(newShipment.weight);
       const requestData = newShipment;
      
       console.log(requestData);
       
+      
       // Determine HTTP method and endpoint
       const method = operationMode === 'add'   ? 'POST' : operationMode === 'edit'    ? 'PUT'  : 'DELETE'; 
-      console.log(method);
-      
       const endpoint = `http://localhost/adyologistics/src/backend/scripts/shipments.php`;
   
       // Make the request
