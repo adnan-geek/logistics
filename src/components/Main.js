@@ -7,6 +7,7 @@ import Users from '../pages/Users';
 import Vehicles from '../pages/Vehicles';
 import Shipments from '../pages/Shipments';
 import Bills from '../pages/Bills';
+import Tracking from '../pages/Tracking'
 import '../styles/main.css';
 
 const Main = () => {
@@ -19,6 +20,7 @@ const Main = () => {
           <Route path="shipments" element={<Shipments />} />
           <Route path="settings" element={<Settings />} />
           <Route path="bills" element={<Bills />} />
+          <Route path="tracking" element={<Tracking />} />
           <Route path="users" element={<Users />} />
           <Route path="vehicles" element={<Vehicles />} />
           <Route path="/" element={<Navigate replace to="analytics" />} />
