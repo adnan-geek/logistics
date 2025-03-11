@@ -11,7 +11,7 @@ function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<Navigate replace to="/home" />} />
+                <Route path="/" element={<Navigate replace to="/main" />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/main/*" element={<Main />} />
